@@ -84,7 +84,7 @@ scripts/                generate-docs, seed-admin, run-e2e
 - **Billetterie** : réservée aux événements publics. L'achat est **anonyme** (« personne extérieure »). Le stock est décrémenté de façon atomique : 10 achats simultanés pour 3 billets donnent exactement 3 ventes (testé).
 - **Fils de discussion** : créés automatiquement avec le groupe ou l'événement. Si `allowMembersToPost` est faux, seuls les administrateurs publient.
 
-## Sécurité (cours « API & Sécurité »)
+## Sécurité 
 
 | Risque | Mesure |
 |---|---|
