@@ -1,8 +1,9 @@
 # My Social Networks API
 
-API REST (Node.js, Express, MongoDB/Mongoose) pour créer et gérer des **événements**, **groupes**, **fils de discussion**, **albums photo**, **sondages** et une **billetterie**. Bonus réalisés : **shopping list** et **covoiturage**.
+My Social Networks API est une API REST développée avec Node.js, Express et MongoDB (via Mongoose). Elle permet de créer et de gérer des événements, des groupes, des fils de discussion, des albums photo, des sondages et une billetterie. Deux fonctionnalités bonus sont également réalisées : une shopping list (qui apporte quoi à un événement) et un système de covoiturage.
 
 ## Démarrage
+Pour lancer le projet sur votre machine, installez d'abord les dépendances, créez votre fichier de configuration .env à partir du modèle fourni, puis démarrez le serveur. Dans le fichier .env, il faut renseigner JWT_SECRET (une longue chaîne aléatoire) et MONGODB_URI (l'adresse de votre base MongoDB).
 
 ```bash
 npm install
@@ -10,7 +11,7 @@ cp .env.example .env        # puis renseigner JWT_SECRET (long et aléatoire) et
 npm run docs                # (re)génère docs/openapi.json et docs/postman_collection.json
 npm start                   # http://localhost:3000  — documentation interactive : /docs
 ```
-
+Le rôle admin ne peut pas être obtenu via l'API : c'est volontaire, pour que personne ne puisse s'attribuer des droits d'administrateur. Un administrateur se crée uniquement avec le script ci-dessous
 Créer un administrateur (le rôle `admin` ne peut pas être obtenu via l'API) :
 
 ```bash
@@ -21,7 +22,10 @@ ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='UnMotDePasseSolide!1' npm run seed
 
 > **URL de la documentation Postman publiée : `https://documenter.getpostman.com/view/59274862/2sBYHbrbSx`**
 
-Pour obtenir cette URL : dans Postman, importer `docs/postman_collection.json`, ouvrir la collection, cliquer sur **View documentation** puis **Publish**, et copier l'adresse publique générée. La collection contient pour chaque service l'URL, l'explication fonctionnelle, un exemple de corps de requête et un **exemple de réponse** (données renvoyées).
+La documentation complète de l'API est publiée en ligne et accessible sans connexion à l'adresse suivante :
+  -https://documenter.getpostman.com/view/59274862/2sBYHbrbSx
+Pour chaque service, elle présente l'URL, l'explication fonctionnelle, un exemple de corps de requête et un exemple de réponse avec les données renvoyées.
+Pour la republier après une modification, il suffit d'importer docs/postman_collection.json dans Postman, d'ouvrir la collection, de cliquer sur View documentation puis sur Publish
 
 ## Documentation et Postman
 
@@ -65,24 +69,25 @@ scripts/                generate-docs, seed-admin, run-e2e
 
 ## Modèle de données (collections)
 
-| Collection | Contenu |
-|---|---|
-| `users` | attributs de l'utilisateur, email **unique**, mot de passe haché (bcrypt), rôle |
-| `groups` | nom, description, icône, couverture, type (public/privé/secret), droits de publication et de création d'événements, `members` (≥1), `admins` (≥1) |
-| `events` | nom, description, dates, lieu, couverture, visibilité, `organizers` (≥1), `participants`, groupe éventuel, options (billetterie, shopping list, covoiturage) |
-| `threads`, `messages` | un fil lié à **un groupe OU un événement** (jamais les deux) ; messages avec `parent` pour les réponses |
-| `albums`, `photos`, `photocomments` | album → 1 événement ; photos postées par un participant ; commentaires par des participants |
-| `polls`, `pollanswers` | sondage (≥1 question, ≥2 réponses par question) ; **une** réponse choisie par question, une participation par utilisateur |
-| `tickettypes`, `tickets` | types de billets (nom, montant, quantité limitée) ; billets (type, nom, prénom, adresse complète, date d'achat), **un seul billet par personne et par événement** |
-| `shoppingitems`, `carpools` | bonus |
+Les données sont stockées dans plusieurs collections MongoDB :
 
-## Choix de conception (là où l'énoncé laissait carte blanche)
+users : les informations de l'utilisateur, avec un email unique, un mot de passe haché (bcrypt) et un rôle.
+groups : le nom, la description, l'icône, la photo de couverture et le type du groupe (public, privé ou secret), les droits de publication et de création d'événements, ainsi que la liste des membres (au moins un) et des administrateurs (au moins un).
+events : le nom, la description, les dates, le lieu, la photo de couverture, la visibilité, les organisateurs (au moins un), les participants, le groupe éventuel et les options activées (billetterie, shopping list, covoiturage).
+threads et messages : un fil de discussion est lié à un groupe ou à un événement, jamais aux deux. Les messages portent un champ parent qui permet d'y répondre.
+albums, photos et photocomments : un album est rattaché à un événement, les photos sont postées par des participants, et les commentaires aussi.
+polls et pollanswers : un sondage comporte au moins une question, avec au moins deux réponses possibles chacune. Chaque participant choisit une seule réponse par question et ne peut participer qu'une fois.
+tickettypes et tickets : les types de billets ont un nom, un montant et une quantité limitée. Un billet enregistre son type, le nom, le prénom, l'adresse complète et la date d'achat de l'acheteur. Une personne ne peut avoir qu'un seul billet par événement.
+shoppingitems et carpools : les données des deux fonctionnalités bonus.
 
-- **Rôles locaux** : seuls les organisateurs modifient l'événement, créent sondages et billets ; seuls les participants postent photos, commentaires, réponses ; seuls les administrateurs gèrent le groupe.
-- **Visibilité** : un événement privé ou un groupe secret est **invisible** (404) pour les non-invités. Un groupe privé affiche une vue réduite aux non-membres.
-- **Groupes** : créer un événement dans un groupe invite automatiquement tous les membres. Dans un groupe privé/secret, l'événement est forcé en privé. Le partage sur les réseaux sociaux n'est possible que pour un événement public d'un groupe public.
-- **Billetterie** : réservée aux événements publics. L'achat est **anonyme** (« personne extérieure »). Le stock est décrémenté de façon atomique : 10 achats simultanés pour 3 billets donnent exactement 3 ventes (testé).
-- **Fils de discussion** : créés automatiquement avec le groupe ou l'événement. Si `allowMembersToPost` est faux, seuls les administrateurs publient.
+## Choix de conception 
+L'énoncé laissait de la liberté sur certains points. Voici les décisions prises :
+
+**Rôles locaux** : seuls les organisateurs d'un événement peuvent le modifier, créer des sondages et des types de billets. Seuls les participants peuvent poster des photos, des commentaires et répondre aux sondages. Seuls les administrateurs d'un groupe peuvent le gérer.
+**Visibilité** : un événement privé ou un groupe secret est complètement invisible (réponse 404) pour les personnes non invitées, comme s'il n'existait pas. Un groupe privé affiche seulement une vue réduite aux non-membres.
+**Groupes et événements** : quand on crée un événement dans un groupe, tous les membres sont invités automatiquement. Dans un groupe privé ou secret, l'événement est forcé en privé pour ne rien laisser fuiter. Le partage sur les réseaux sociaux n'est possible que pour un événement public d'un groupe public.
+**Billetterie** : elle est réservée aux événements publics et l'achat est anonyme, puisqu'il s'adresse à des personnes extérieures. Le stock est décrémenté de **façon atomique** : lors du test, 10 achats simultanés pour 3 billets ont donné exactement 3 ventes.
+**Fils de discussion** : un fil est créé automatiquement avec chaque groupe et chaque événement. Si l'option allowMembersToPost est désactivée sur un groupe, seuls les administrateurs peuvent y publier.
 
 ## Sécurité 
 
