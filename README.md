@@ -71,14 +71,21 @@ scripts/                generate-docs, seed-admin, run-e2e
 
 Les données sont stockées dans plusieurs collections MongoDB :
 
-users : les informations de l'utilisateur, avec un email unique, un mot de passe haché (bcrypt) et un rôle.
-groups : le nom, la description, l'icône, la photo de couverture et le type du groupe (public, privé ou secret), les droits de publication et de création d'événements, ainsi que la liste des membres (au moins un) et des administrateurs (au moins un).
-events : le nom, la description, les dates, le lieu, la photo de couverture, la visibilité, les organisateurs (au moins un), les participants, le groupe éventuel et les options activées (billetterie, shopping list, covoiturage).
-threads et messages : un fil de discussion est lié à un groupe ou à un événement, jamais aux deux. Les messages portent un champ parent qui permet d'y répondre.
-albums, photos et photocomments : un album est rattaché à un événement, les photos sont postées par des participants, et les commentaires aussi.
-polls et pollanswers : un sondage comporte au moins une question, avec au moins deux réponses possibles chacune. Chaque participant choisit une seule réponse par question et ne peut participer qu'une fois.
-tickettypes et tickets : les types de billets ont un nom, un montant et une quantité limitée. Un billet enregistre son type, le nom, le prénom, l'adresse complète et la date d'achat de l'acheteur. Une personne ne peut avoir qu'un seul billet par événement.
-shoppingitems et carpools : les données des deux fonctionnalités bonus.
+**users** : les informations de l'utilisateur, avec un email unique, un mot de passe haché (bcrypt) et un rôle.
+
+**groups** : le nom, la description, l'icône, la photo de couverture et le type du groupe (public, privé ou secret), les droits de publication et de création d'événements, ainsi que la liste des membres (au moins un) et des administrateurs (au moins un).
+
+**events** : le nom, la description, les dates, le lieu, la photo de couverture, la visibilité, les organisateurs (au moins un), les participants, le groupe éventuel et les options activées (billetterie, shopping list, covoiturage).
+
+**threads et messages** : un fil de discussion est lié à un groupe ou à un événement, jamais aux deux. Les messages portent un champ parent qui permet d'y répondre.
+
+**albums, photos et photocomments** : un album est rattaché à un événement, les photos sont postées par des participants, et les commentaires aussi.
+
+**polls et pollanswers** : un sondage comporte au moins une question, avec au moins deux réponses possibles chacune. Chaque participant choisit une seule réponse par question et ne peut participer qu'une fois.
+
+**tickettypes et tickets** : les types de billets ont un nom, un montant et une quantité limitée. Un billet enregistre son type, le nom, le prénom, l'adresse complète et la date d'achat de l'acheteur. Une personne ne peut avoir qu'un seul billet par événement.
+
+**shoppingitems et carpools** : les données des deux fonctionnalités bonus.
 
 ## Choix de conception 
 L'énoncé laissait de la liberté sur certains points. Voici les décisions prises :
