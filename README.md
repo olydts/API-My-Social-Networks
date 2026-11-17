@@ -84,9 +84,13 @@ shoppingitems et carpools : les données des deux fonctionnalités bonus.
 L'énoncé laissait de la liberté sur certains points. Voici les décisions prises :
 
 **Rôles locaux** : seuls les organisateurs d'un événement peuvent le modifier, créer des sondages et des types de billets. Seuls les participants peuvent poster des photos, des commentaires et répondre aux sondages. Seuls les administrateurs d'un groupe peuvent le gérer.
+
 **Visibilité** : un événement privé ou un groupe secret est complètement invisible (réponse 404) pour les personnes non invitées, comme s'il n'existait pas. Un groupe privé affiche seulement une vue réduite aux non-membres.
+
 **Groupes et événements** : quand on crée un événement dans un groupe, tous les membres sont invités automatiquement. Dans un groupe privé ou secret, l'événement est forcé en privé pour ne rien laisser fuiter. Le partage sur les réseaux sociaux n'est possible que pour un événement public d'un groupe public.
+
 **Billetterie** : elle est réservée aux événements publics et l'achat est anonyme, puisqu'il s'adresse à des personnes extérieures. Le stock est décrémenté de **façon atomique** : lors du test, 10 achats simultanés pour 3 billets ont donné exactement 3 ventes.
+
 **Fils de discussion** : un fil est créé automatiquement avec chaque groupe et chaque événement. Si l'option allowMembersToPost est désactivée sur un groupe, seuls les administrateurs peuvent y publier.
 
 ## Sécurité 
